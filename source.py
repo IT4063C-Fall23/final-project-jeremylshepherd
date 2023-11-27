@@ -199,7 +199,7 @@ seattle_crime_df['CRIME_TYPE'].value_counts().plot(kind='barh')
 # *What resources and references have you used for this project?*
 # I used Kaggle to source the datasets
 
-# In[16]:
+# In[19]:
 
 
 # ⚠️ Make sure you run this cell at the end of your notebook before every submission!
