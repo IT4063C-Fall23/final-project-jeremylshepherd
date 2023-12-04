@@ -33,7 +33,7 @@
 # *How will you use the identified data to answer your project question?*
 # 📝 <!-- Start Discussing the project here; you can add as many code cells as you need -->
 
-# In[1]:
+# In[78]:
 
 
 # Start your code here
@@ -63,15 +63,25 @@ mpl.rc('xtick', labelsize=12)
 mpl.rc('ytick', labelsize=12)
 plt.style.use("bmh")
 
-denver_crime_df = pd.read_csv('data/denver_crime.csv')
+# denver_crime_df = pd.read_csv('data/denver_crime.csv') # old data
 kc_crime_df = pd.read_csv('data/KCcrime2010To2018.csv', low_memory=False)
 seattle01_crime_df = pd.read_csv('data/seattle-crime-stats-by-1990-census-tract-1996-2007.csv')
 seattle02_crime_df = pd.read_csv('data/seattle-crime-stats-by-police-precinct-2008-present.csv')
 
-denver_crime_df.head()
-kc_crime_df.head()
-seattle01_crime_df.head()
-seattle02_crime_df.head()
+denver_df_2010 = pd.read_csv('data/denver_by_year/crime2010.csv')
+denver_df_2011 = pd.read_csv('data/denver_by_year/crime2011.csv')
+denver_df_2012 = pd.read_csv('data/denver_by_year/crime2012.csv')
+denver_df_2013 = pd.read_csv('data/denver_by_year/crime2013.csv')
+denver_df_2014 = pd.read_csv('data/denver_by_year/crime2014.csv')
+denver_df_2015 = pd.read_csv('data/denver_by_year/crime2015.csv')
+
+denver_crime_df = pd.concat([denver_df_2010, denver_df_2011, denver_df_2012, denver_df_2013, denver_df_2014, denver_df_2015])
+
+display(denver_crime_df.head())
+display(kc_crime_df.head())
+display(seattle01_crime_df.head())
+display(seattle02_crime_df.head())
+
 
 
 # ### Exploratory Data Analysis
@@ -79,7 +89,7 @@ seattle02_crime_df.head()
 # Data visualizations to evaluate the data in order to form conclusions about whether marijuana legalization had a tangential impact on other aspects of crime.
 # I am paying particular attention to the 2-3 year period before and after legalization.
 
-# In[2]:
+# In[79]:
 
 
 # Get the shapes of the data
@@ -89,7 +99,7 @@ display(seattle02_crime_df.shape)
 display(kc_crime_df.shape)
 
 
-# In[3]:
+# In[80]:
 
 
 # Look at the columns and compare the presentation of the data
@@ -102,21 +112,21 @@ display(kc_crime_df.info())
 # ### Intitial thoughts
 # The data from Seattle 01 and Kansas City do not appear to provide much in the way of usable data. Denver and Seattle 02 show some promise. The datasets are structured differently but I may be able to extract the necessary data from them to answer the question I am researching. I will need to try to find another comparison city for evaluation against the cities with legalized marijuana.
 
-# In[4]:
+# In[81]:
 
 
 # Check for duplicated records for Denver
 denver_crime_df.duplicated().sum()
 
 
-# In[5]:
+# In[82]:
 
 
 # Check for duplicated records for Seattle
 seattle02_crime_df.duplicated().sum()
 
 
-# In[6]:
+# In[83]:
 
 
 # Drop duplicates from Seattle and rename
@@ -125,7 +135,7 @@ seattle_crime_df = seattle02_crime_df.drop_duplicates()
 display(seattle_crime_df.shape)
 
 
-# In[7]:
+# In[84]:
 
 
 # Check for missing values for Denver
@@ -139,13 +149,13 @@ display(seattle_crime_df.isna().sum())
 # ### Statistical Summary of the Data
 # Below is the statistical summary of the data for Denver and Seattle.
 
-# In[8]:
+# In[85]:
 
 
 denver_crime_df.describe()
 
 
-# In[9]:
+# In[86]:
 
 
 seattle_crime_df.describe()
@@ -154,48 +164,51 @@ seattle_crime_df.describe()
 # ### Data visualizations
 # Display a representation of the data to evaluate best way to evaluate it.
 
-# In[10]:
+# In[87]:
 
 
 denver_crime_df.hist(figsize=(20,15), bins=50)
 
 
-# In[11]:
+# In[88]:
 
 
 seattle_crime_df.hist(figsize=(20,15), bins=50)
 
 
-# In[12]:
+# In[89]:
 
 
 seattle_crime_df['CRIME_TYPE'].hist(figsize=(20,15), bins=50)
 
 
-# In[13]:
+# In[90]:
 
 
 denver_crime_df['offense_category_id'].hist(figsize=(20,15), bins=50)
 
 
-# In[14]:
+# In[ ]:
 
 
-simplified_denver_crime_df = denver_crime_df.drop(['incident_id','offense_id','offense_code','offense_code_extension','first_occurrence_date',
-                                                 'last_occurrence_date','incident_address','geo_x','geo_y','geo_lon','geo_lat','district_id',
-                                                 'precinct_id','neighborhood_id','is_crime','is_traffic','victim_count'], axis=1)
+display(denver_crime_df.columns)
 
-simplified_denver_crime_df['offense_category_id'].value_counts().plot(kind='barh')
+simplified_denver_crime_df = denver_crime_df.drop(['incident_id', 'offense_id', 'OFFENSE_CODE', 'OFFENSE_CODE_EXTENSION','FIRST_OCCURRENCE_DATE',
+       'LAST_OCCURRENCE_DATE','INCIDENT_ADDRESS', 'GEO_X',
+       'GEO_Y', 'GEO_LON', 'GEO_LAT', 'DISTRICT_ID', 'PRECINCT_ID',
+       'NEIGHBORHOOD_ID', 'IS_CRIME', 'IS_TRAFFIC', 'VICTIM_COUNT'], axis=1)
+
+simplified_denver_crime_df['OFFENSE_CATEGORY_ID'].value_counts().plot(kind='barh')
 
 
-# In[15]:
+# In[ ]:
 
 
 seattle_scatter_mat = pd.plotting.scatter_matrix(seattle_crime_df, figsize=(20,15))
 seattle_scatter_mat
 
 
-# In[16]:
+# In[ ]:
 
 
 seattle_crime_df['CRIME_TYPE'].value_counts().plot(kind='barh')
@@ -208,17 +221,17 @@ seattle_crime_df['CRIME_TYPE'].value_counts().plot(kind='barh')
 # ### Data transformation
 # I will add a column to each dataset exclusively for the year of the offense. This should allow me to observe the rate of change, if any, for each type year over year. The datasets have different categories of crimes that do not necessarily correspond to each other. However, I do not see this necessarily as a hindrance as the real intent is to see if there are any changes in the respective categories.
 
-# In[17]:
+# In[ ]:
 
 
 # Transform Denver data
-simplified_denver_crime_df['reported_datetime'] = pd.to_datetime(simplified_denver_crime_df['reported_date'])
+simplified_denver_crime_df['reported_datetime'] = pd.to_datetime(simplified_denver_crime_df['REPORTED_DATE'])
 simplified_denver_crime_df.head()
-simplified_denver_crime_df['year'] = simplified_denver_crime_df['reported_datetime'].dt.year
+simplified_denver_crime_df['YEAR'] = simplified_denver_crime_df['reported_datetime'].dt.year
 simplified_denver_crime_df.head()
 
 
-# In[18]:
+# In[ ]:
 
 
 seattle_crime_df['REPORT_DATETIME'] = pd.to_datetime(seattle_crime_df['REPORT_DATE'])
@@ -230,15 +243,15 @@ seattle_crime_df.head()
 # ### Remove all superflous columns
 # Remove unnecessary columns from the datasets to maximize focus on important data.
 
-# In[19]:
+# In[ ]:
 
 
-denver_crime_df_v2 = simplified_denver_crime_df.drop(['offense_type_id', 'reported_date',
+denver_crime_df_v2 = simplified_denver_crime_df.drop(['OFFENSE_TYPE_ID', 'REPORTED_DATE',
        'reported_datetime'], axis=1)
 denver_crime_df_v2.head()
 
 
-# In[20]:
+# In[ ]:
 
 
 seattle_crime_df_v2 = seattle_crime_df.drop(['Police Beat', 'CRIME_DESCRIPTION', 'STAT_VALUE', 'REPORT_DATE',
@@ -246,34 +259,34 @@ seattle_crime_df_v2 = seattle_crime_df.drop(['Police Beat', 'CRIME_DESCRIPTION',
 seattle_crime_df_v2.head()
 
 
-# In[21]:
+# In[ ]:
 
 
 seattle_grouping_and_counts = seattle_crime_df_v2.groupby('YEAR')['CRIME_TYPE'].value_counts()
 seattle_grouping_and_counts.plot(x='YEAR', kind='bar', stacked=False, title='Seattle Criminal Incidents by Year', figsize=(150, 75))
 
 
-# In[22]:
+# In[ ]:
 
 
-denver_grouping_and_counts = denver_crime_df_v2.groupby('year')['offense_category_id'].value_counts()
+denver_grouping_and_counts = denver_crime_df_v2.groupby('YEAR')['OFFENSE_CATEGORY_ID'].value_counts()
 denver_grouping_and_counts.plot(x='year', kind='bar', stacked=False, title='Denver Criminal Incidents by Year', figsize=(100, 50))
 
 
 # ## Machine Learning
 # 
-# Split into train and test sets. Given this is for demonstration purposes only. I will limit it to the Seattle dataset.
+# Split into train and test sets. Given this is for demonstration purposes only. I will limit it to the Denver dataset.
 # 
 # 
 
-# In[58]:
+# In[ ]:
 
 
 from sklearn.model_selection import train_test_split
 
 # create train/test set
-seattle_train_set, seattle_test_set = train_test_split(seattle_crime_df_v2, test_size=0.2, random_state=42)
-seattle_train_set.head()
+denver_train_set, denver_test_set = train_test_split(denver_crime_df_v2, test_size=0.2, random_state=42)
+denver_train_set.head()
 
 
 # ## Modeling Data
@@ -281,7 +294,7 @@ seattle_train_set.head()
 # 
 # Given the simple nature of the data, I am using a LinearRegression model. Modeling is not really relevant to my project, but I include it to demonstrate using the tools.
 
-# In[60]:
+# In[ ]:
 
 
 from sklearn.linear_model import LinearRegression
@@ -289,21 +302,20 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.pipeline import Pipeline
 
 # handle the categorical data
-seattle_categories = seattle_train_set[['CRIME_TYPE']]
+denver_categories = denver_train_set[['OFFENSE_CATEGORY_ID']]
 one_hot_encoder = OneHotEncoder()
-seattle_train_categories = one_hot_encoder.fit_transform(seattle_categories)
-display(seattle_train_categories.toarray())
+denver_train_categories = one_hot_encoder.fit_transform(denver_categories)
+display(denver_train_categories.toarray())
 display(one_hot_encoder.categories_)
 
-# Trying to convert the Groupby variable into a dataframe but it doesn't really work. I end up with a single column of count instead of [YEAR, CRIME_TYPE, COUNT]. Not sure how to accomplaish that which has me stuck to this point.
-
+# Trying to convert the Groupby variable into a dataframe but it doesn't really work. I end up with a single column of count instead of [YEAR, OFFENSE_CATEGORY_ID, COUNT]. Not sure how to accomplaish that which has me stuck to this point.
 
 
 # ## Resources and References
 # *What resources and references have you used for this project?*
 # I used Kaggle to source the datasets
 
-# In[61]:
+# In[ ]:
 
 
 # ⚠️ Make sure you run this cell at the end of your notebook before every submission!
