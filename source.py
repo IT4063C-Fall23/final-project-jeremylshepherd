@@ -281,7 +281,7 @@ seattle_train_set.head()
 # 
 # Given the simple nature of the data, I am using a LinearRegression model. Modeling is not really relevant to my project, but I include it to demonstrate using the tools.
 
-# In[59]:
+# In[60]:
 
 
 from sklearn.linear_model import LinearRegression
@@ -303,7 +303,7 @@ display(one_hot_encoder.categories_)
 # *What resources and references have you used for this project?*
 # I used Kaggle to source the datasets
 
-# In[25]:
+# In[61]:
 
 
 # ⚠️ Make sure you run this cell at the end of your notebook before every submission!
